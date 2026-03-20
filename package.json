@@ -1,0 +1,15 @@
+{
+  "name": "staff-reporting-system",
+  "version": "1.0.0",
+  "description": "駐點人員回報系統",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "multiparty": "^4.2.3",
+    "nodemailer": "^6.9.8",
+    "sharp": "^0.33.0"
+  }
+}
