@@ -506,6 +506,11 @@
             // Use demo mode - set to true only for testing
             useDemoMode: false
         };
+
+        // ImgBB API - free image hosting
+        // Get your free key at: https://api.imgbb.com/
+        const IMGBB_API_KEY = 'YOUR_IMGBB_API_KEY';
+        const IMGBB_API_URL = 'https://api.imgbb.com/1/upload';
         
         // Demo product data
         const demoProducts = [
@@ -972,7 +977,7 @@
                 productName: selectedProduct.name,
                 price: selectedProduct.price || '',
                 note: note || '-',
-                photo: currentPhotoBase64 || null
+                photo: currentPhotoUrl || currentPhotoBase64 || null
             };
             
             // Save locally first
@@ -1004,7 +1009,8 @@
                     productName: report.productName,
                     price: report.price || '',
                     note: report.note,
-                    timestamp: report.timestamp
+                    timestamp: report.timestamp,
+                    photo: report.photo || ''
                 });
                 
                 const url = `${GOOGLE_SHEETS_CONFIG.reportsUrl}?${params.toString()}`;
@@ -1030,7 +1036,7 @@
                                 <span class="time">${r.timestamp}</span>
                             </div>
                             <div style="font-size:12px;color:#6b7280;margin:5px 0;">${r.name} | ${r.store}</div>
-                            ${r.photo ? `<img src="${r.photo}" style="width:100%;max-height:200px;object-fit:contain;border-radius:8px;margin:6px 0;border:1px solid #e5e7eb;" onclick="showFullImage(this.src)">` : ''}
+                            ${r.photo ? `<img src="${r.photo}" style="width:100%;max-height:200px;object-fit:contain;border-radius:8px;margin:6px 0;border:1px solid #e5e7eb;cursor:pointer;" onclick="showFullImage(this.src)" onerror="this.style.display='none'">` : ''}
                             <div style="display:flex;justify-content:space-between;align-items:center;">
                                 ${r.note ? `<div class="note">${r.note}</div>` : '<div></div>'}
                                 ${deleteBtn}
@@ -1063,7 +1069,7 @@
                                     <span class="time">${r.timestamp || r.date || ''}</span>
                                 </div>
                                 <div style="font-size:12px;color:#888;margin:5px 0;">👤 ${r.name || ''} | 🏪 ${r.store || ''}</div>
-                                ${r.photo ? `<img src="${r.photo}" style="width:100%;max-height:200px;object-fit:contain;border-radius:8px;margin:6px 0;border:1px solid #e5e7eb;" onclick="showFullImage(this.src)">` : ''}
+                                ${r.photo ? `<img src="${r.photo}" style="width:100%;max-height:200px;object-fit:contain;border-radius:8px;margin:6px 0;border:1px solid #e5e7eb;cursor:pointer;" onclick="showFullImage(this.src)" onerror="this.style.display='none'">` : ''}
                                 <div style="display:flex;justify-content:space-between;align-items:center;">
                                     ${r.note && r.note !== '-' ? `<div class="note">📝 ${r.note}</div>` : '<div></div>'}
                                 </div>
@@ -1077,6 +1083,8 @@
         
         // ==================== Photo Upload ====================
         let currentPhotoBase64 = null;
+        let currentPhotoUrl = null;   // imgbb hosted URL
+        let isUploadingPhoto = false;
 
         function showFullImage(src) {
             const overlay = document.createElement('div');
@@ -1095,18 +1103,81 @@
                 return;
             }
 
+            // Show loading state
+            const uploadBtn = document.querySelector('#photoUploadWrapper .btn');
+            uploadBtn.innerHTML = '⏳ 上傳中...';
+            uploadBtn.disabled = true;
+            isUploadingPhoto = true;
+
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = async function(e) {
                 currentPhotoBase64 = e.target.result;
-                document.getElementById('photoPreview').src = currentPhotoBase64;
-                document.getElementById('photoPreviewContainer').style.display = 'block';
-                document.getElementById('photoUploadWrapper').style.display = 'none';
+
+                try {
+                    currentPhotoUrl = await uploadToImgBB(currentPhotoBase64);
+                    // Show preview with imgbb URL
+                    document.getElementById('photoPreview').src = currentPhotoUrl;
+                    document.getElementById('photoPreviewContainer').style.display = 'block';
+                    document.getElementById('photoUploadWrapper').style.display = 'none';
+
+                    // Show success badge
+                    const badge = document.createElement('div');
+                    badge.id = 'photoUploadBadge';
+                    badge.style = 'margin-top:6px;text-align:center;font-size:12px;color:var(--accent);font-weight:500;';
+                    badge.innerHTML = '✅ 上傳成功！';
+                    document.getElementById('photoPreviewContainer').appendChild(badge);
+                } catch (err) {
+                    alert('⚠️ 上傳失敗，仍可提交（照片將以本地形式儲存）');
+                    document.getElementById('photoPreview').src = currentPhotoBase64;
+                    document.getElementById('photoPreviewContainer').style.display = 'block';
+                    document.getElementById('photoUploadWrapper').style.display = 'none';
+                }
+
+                // Reset button
+                const btn = document.querySelector('#photoUploadWrapper .btn');
+                if (btn) {
+                    btn.innerHTML = '📷 拍攝 / 上傳照片';
+                    btn.disabled = false;
+                }
+                isUploadingPhoto = false;
             };
             reader.readAsDataURL(file);
         }
 
+        // Upload base64 image to ImgBB
+        async function uploadToImgBB(base64Data) {
+            // If no API key configured, return original base64
+            if (!IMGBB_API_KEY || IMGBB_API_KEY === 'YOUR_IMGBB_API_KEY') {
+                console.log('ImgBB API key not set — using base64 directly');
+                return base64Data;
+            }
+
+            // Strip the data URL prefix (e.g. "data:image/jpeg;base64,")
+            const base64Only = base64Data.split(',')[1];
+
+            const formData = new FormData();
+            formData.append('image', base64Only);
+
+            const response = await fetch(`${IMGBB_API_URL}?key=${IMGBB_API_KEY}`, {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) {
+                throw new Error(`ImgBB upload failed: ${response.status}`);
+            }
+
+            const data = await response.json();
+            if (data.success) {
+                return data.data.url;
+            } else {
+                throw new Error(data.error?.message || 'ImgBB error');
+            }
+        }
+
         function removePhoto() {
             currentPhotoBase64 = null;
+            currentPhotoUrl = null;
             document.getElementById('photoInput').value = '';
             document.getElementById('photoPreviewContainer').style.display = 'none';
             document.getElementById('photoUploadWrapper').style.display = 'block';
@@ -1119,6 +1190,7 @@
             document.getElementById('productInfo').classList.remove('show');
             selectedProduct = null;
             removePhoto();
+            currentPhotoUrl = null;
             
             document.getElementById('successResult').classList.add('hidden');
             document.getElementById('reportForm').classList.add('active');
