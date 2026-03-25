@@ -450,6 +450,23 @@
                 <textarea id="reportNote" placeholder="請輸入任何需要記錄的事項..."></textarea>
             </div>
             
+            <!-- Photo Upload -->
+            <div class="form-group">
+                <label>照片上傳（可選）</label>
+                <div class="photo-upload-wrapper" id="photoUploadWrapper">
+                    <input type="file" id="photoInput" accept="image/*" capture="environment" onchange="handlePhotoUpload(this)" style="display:none;">
+                    <button class="btn btn-secondary" style="width:100%" onclick="document.getElementById('photoInput').click()">
+                        📷 拍攝 / 上傳照片
+                    </button>
+                </div>
+                <div id="photoPreviewContainer" style="display:none;margin-top:12px;">
+                    <img id="photoPreview" style="width:100%;max-height:300px;object-fit:contain;border-radius:12px;border:2px dashed var(--border);background:#f5f5f7;">
+                    <button onclick="removePhoto()" style="margin-top:8px;width:100%;background:#fee2e2;border:1px solid #fecaca;color:#dc2626;padding:8px;border-radius:10px;font-size:13px;cursor:pointer;">
+                        ✕ 移除照片
+                    </button>
+                </div>
+            </div>
+            
             <button class="btn btn-primary" onclick="submitReport()">
                 Submit 提交回報
             </button>
@@ -954,7 +971,8 @@
                 productPN: selectedProduct.pn,
                 productName: selectedProduct.name,
                 price: selectedProduct.price || '',
-                note: note || '-'
+                note: note || '-',
+                photo: currentPhotoBase64 || null
             };
             
             // Save locally first
@@ -1012,6 +1030,7 @@
                                 <span class="time">${r.timestamp}</span>
                             </div>
                             <div style="font-size:12px;color:#6b7280;margin:5px 0;">${r.name} | ${r.store}</div>
+                            ${r.photo ? `<img src="${r.photo}" style="width:100%;max-height:200px;object-fit:contain;border-radius:8px;margin:6px 0;border:1px solid #e5e7eb;" onclick="showFullImage(this.src)">` : ''}
                             <div style="display:flex;justify-content:space-between;align-items:center;">
                                 ${r.note ? `<div class="note">${r.note}</div>` : '<div></div>'}
                                 ${deleteBtn}
@@ -1044,6 +1063,7 @@
                                     <span class="time">${r.timestamp || r.date || ''}</span>
                                 </div>
                                 <div style="font-size:12px;color:#888;margin:5px 0;">👤 ${r.name || ''} | 🏪 ${r.store || ''}</div>
+                                ${r.photo ? `<img src="${r.photo}" style="width:100%;max-height:200px;object-fit:contain;border-radius:8px;margin:6px 0;border:1px solid #e5e7eb;" onclick="showFullImage(this.src)">` : ''}
                                 <div style="display:flex;justify-content:space-between;align-items:center;">
                                     ${r.note && r.note !== '-' ? `<div class="note">📝 ${r.note}</div>` : '<div></div>'}
                                 </div>
@@ -1055,12 +1075,50 @@
             }
         }
         
+        // ==================== Photo Upload ====================
+        let currentPhotoBase64 = null;
+
+        function showFullImage(src) {
+            const overlay = document.createElement('div');
+            overlay.style = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:9999;display:flex;align-items:center;justify-content:center;cursor:pointer;';
+            overlay.innerHTML = `<img src="${src}" style="max-width:95%;max-height:95%;object-fit:contain;border-radius:12px;">`;
+            overlay.onclick = () => document.body.removeChild(overlay);
+            document.body.appendChild(overlay);
+        }
+
+        function handlePhotoUpload(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            if (!file.type.startsWith('image/')) {
+                alert('請上傳圖片檔案！');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                currentPhotoBase64 = e.target.result;
+                document.getElementById('photoPreview').src = currentPhotoBase64;
+                document.getElementById('photoPreviewContainer').style.display = 'block';
+                document.getElementById('photoUploadWrapper').style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function removePhoto() {
+            currentPhotoBase64 = null;
+            document.getElementById('photoInput').value = '';
+            document.getElementById('photoPreviewContainer').style.display = 'none';
+            document.getElementById('photoUploadWrapper').style.display = 'block';
+        }
+
         // ==================== Reset Form ====================
         function resetForm() {
             document.getElementById('productPN').value = '';
             document.getElementById('reportNote').value = '';
             document.getElementById('productInfo').classList.remove('show');
             selectedProduct = null;
+            removePhoto();
             
             document.getElementById('successResult').classList.add('hidden');
             document.getElementById('reportForm').classList.add('active');
