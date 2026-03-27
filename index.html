@@ -555,6 +555,24 @@
                     <span class="info-label">價格</span>
                     <span class="info-value" id="infoPrice">-</span>
                 </div>
+                <!-- Product Photo Upload -->
+                <div class="form-group" style="margin-top:12px;">
+                    <label class="photo-upload-label">📷 上傳產品照片</label>
+                    <div id="productPhotoUploadArea" class="photo-upload-area" onclick="document.getElementById('productPhotoInput').click()">
+                        <div id="productPhotoPlaceholder">
+                            <div class="photo-upload-icon">📷</div>
+                            <div class="photo-upload-text">
+                                點擊上傳產品照片 或 <span>選擇檔案</span>
+                            </div>
+                            <div class="photo-upload-text" style="font-size:11px;margin-top:4px;">支援 JPG、PNG（最大 5MB）</div>
+                        </div>
+                        <div id="productPhotoPreviewContainer" class="photo-preview-container">
+                            <img id="productPhotoPreviewImg" class="photo-preview-img" />
+                            <button class="photo-remove-btn" onclick="removeProductPhoto(event)" title="移除照片">✕</button>
+                        </div>
+                    </div>
+                    <input type="file" id="productPhotoInput" accept="image/*" onchange="handleProductPhotoSelect(this)" />
+                </div>
             </div>
             
             <!-- Report Details -->
@@ -944,6 +962,13 @@
                 alert('找不到該產品，請確認 PN 碼是否正確！');
                 selectedProduct = null;
                 document.getElementById('productInfo').classList.remove('show');
+                // Clear product photo on deselect
+                selectedProductPhotoBase64 = null;
+                document.getElementById('productPhotoInput').value = '';
+                document.getElementById('productPhotoPlaceholder').style.display = 'block';
+                document.getElementById('productPhotoPreviewContainer').classList.remove('show');
+                document.getElementById('productPhotoPreviewImg').src = '';
+                document.getElementById('productPhotoUploadArea').classList.remove('has-photo');
             }
         }
         
@@ -1079,6 +1104,34 @@
 
         // ==================== Photo Upload ====================
         let selectedPhotoBase64 = null;
+        let selectedProductPhotoBase64 = null;
+
+        function handleProductPhotoSelect(input) {
+            const file = input.files[0];
+            if (!file) return;
+            if (!file.type.startsWith('image/')) { alert('請選擇圖片檔案！'); return; }
+            if (file.size > 5 * 1024 * 1024) { alert('圖片大小不能超過 5MB！'); return; }
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                selectedProductPhotoBase64 = e.target.result;
+                document.getElementById('productPhotoPlaceholder').style.display = 'none';
+                document.getElementById('productPhotoPreviewContainer').classList.add('show');
+                document.getElementById('productPhotoPreviewImg').src = selectedProductPhotoBase64;
+                document.getElementById('productPhotoUploadArea').classList.add('has-photo');
+            };
+            reader.onerror = function() { alert('圖片讀取失敗，請重試！'); };
+            reader.readAsDataURL(file);
+        }
+
+        function removeProductPhoto(event) {
+            event.stopPropagation();
+            selectedProductPhotoBase64 = null;
+            document.getElementById('productPhotoInput').value = '';
+            document.getElementById('productPhotoPlaceholder').style.display = 'block';
+            document.getElementById('productPhotoPreviewContainer').classList.remove('show');
+            document.getElementById('productPhotoPreviewImg').src = '';
+            document.getElementById('productPhotoUploadArea').classList.remove('has-photo');
+        }
         
         function handlePhotoSelect(input) {
             const file = input.files[0];
@@ -1143,7 +1196,8 @@
                 productName: selectedProduct.name,
                 price: selectedProduct.price || '',
                 note: note || '-',
-                photo: selectedPhotoBase64 || ''
+                photo: selectedPhotoBase64 || '',
+                productPhoto: selectedProductPhotoBase64 || ''
             };
             
             // Save locally first
@@ -1161,6 +1215,14 @@
             document.getElementById('photoPreviewImg').src = '';
             document.getElementById('photoUploadedBadge').style.display = 'none';
             document.getElementById('photoUploadArea').classList.remove('has-photo');
+
+            // Reset product photo state after submission
+            selectedProductPhotoBase64 = null;
+            document.getElementById('productPhotoInput').value = '';
+            document.getElementById('productPhotoPlaceholder').style.display = 'block';
+            document.getElementById('productPhotoPreviewContainer').classList.remove('show');
+            document.getElementById('productPhotoPreviewImg').src = '';
+            document.getElementById('productPhotoUploadArea').classList.remove('has-photo');
             
             // Show success
             document.getElementById('reportForm').classList.remove('active');
@@ -1275,7 +1337,7 @@
             document.getElementById('reportNote').value = '';
             document.getElementById('productInfo').classList.remove('show');
             selectedProduct = null;
-            
+
             // Clear photo
             selectedPhotoBase64 = null;
             document.getElementById('photoInput').value = '';
@@ -1284,7 +1346,15 @@
             document.getElementById('photoPreviewImg').src = '';
             document.getElementById('photoUploadedBadge').style.display = 'none';
             document.getElementById('photoUploadArea').classList.remove('has-photo');
-            
+
+            // Clear product photo
+            selectedProductPhotoBase64 = null;
+            document.getElementById('productPhotoInput').value = '';
+            document.getElementById('productPhotoPlaceholder').style.display = 'block';
+            document.getElementById('productPhotoPreviewContainer').classList.remove('show');
+            document.getElementById('productPhotoPreviewImg').src = '';
+            document.getElementById('productPhotoUploadArea').classList.remove('has-photo');
+
             document.getElementById('successResult').classList.add('hidden');
             document.getElementById('reportForm').classList.add('active');
         }
