@@ -1153,6 +1153,15 @@
             // Try to push to Google Sheets
             pushReportToSheets(report);
             
+            // Reset photo state after submission
+            selectedPhotoBase64 = null;
+            document.getElementById('photoInput').value = '';
+            document.getElementById('photoPlaceholder').style.display = 'block';
+            document.getElementById('photoPreviewContainer').classList.remove('show');
+            document.getElementById('photoPreviewImg').src = '';
+            document.getElementById('photoUploadedBadge').style.display = 'none';
+            document.getElementById('photoUploadArea').classList.remove('has-photo');
+            
             // Show success
             document.getElementById('reportForm').classList.remove('active');
             document.getElementById('successResult').classList.remove('hidden');
@@ -1175,12 +1184,26 @@
                     productName: report.productName,
                     price: report.price || '',
                     note: report.note,
-                    timestamp: report.timestamp
+                    timestamp: report.timestamp,
+                    hasPhoto: report.photo ? 'true' : 'false'
                 });
                 
                 const url = `${GOOGLE_SHEETS_CONFIG.reportsUrl}?${params.toString()}`;
                 
                 await fetch(url);
+                
+                // If there's a photo, push it separately via POST
+                if (report.photo) {
+                    await fetch(GOOGLE_SHEETS_CONFIG.reportsUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            action: 'addReportPhoto',
+                            reportId: report.id,
+                            photo: report.photo
+                        })
+                    });
+                }
             } catch (err) {
                 console.error('Failed to push report to Google Sheets:', err);
             }
