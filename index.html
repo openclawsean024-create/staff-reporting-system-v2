@@ -344,6 +344,118 @@
             to { transform: rotate(360deg); }
         }
         
+        /* Photo Upload */
+        .photo-upload-section {
+            margin-bottom: 16px;
+        }
+        
+        .photo-upload-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text);
+            font-size: 14px;
+        }
+        
+        .photo-upload-area {
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: var(--bg);
+            position: relative;
+        }
+        
+        .photo-upload-area:hover {
+            border-color: var(--primary);
+            background: rgba(0,113,227,0.04);
+        }
+        
+        .photo-upload-area.has-photo {
+            border-style: solid;
+            border-color: var(--accent);
+            padding: 10px;
+        }
+        
+        .photo-upload-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+        
+        .photo-upload-text {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+        
+        .photo-upload-text span {
+            color: var(--primary);
+            font-weight: 500;
+        }
+        
+        #photoInput {
+            display: none;
+        }
+        
+        .photo-preview-container {
+            display: none;
+            position: relative;
+            width: 100%;
+        }
+        
+        .photo-preview-container.show {
+            display: block;
+        }
+        
+        .photo-preview-img {
+            width: 100%;
+            max-height: 300px;
+            object-fit: contain;
+            border-radius: 8px;
+            display: block;
+        }
+        
+        .photo-remove-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(255,59,48,0.9);
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .photo-uploading-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255,255,255,0.85);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+        
+        .photo-uploaded-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(52,199,89,0.15);
+            color: var(--accent);
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 20px;
+            margin-top: 6px;
+        }
     </style>
 </head>
 <body>
@@ -452,16 +564,30 @@
             </div>
             
             <!-- Photo Upload -->
-            <div class="form-group">
-                <label>上傳照片 📷</label>
-                <input type="file" id="reportPhoto" accept="image/*" capture="environment" style="display:none;" onchange="previewPhoto(event)">
-                <button type="button" class="btn btn-secondary" onclick="document.getElementById('reportPhoto').click()" style="margin-bottom:8px;">
-                    📷 選擇照片
-                </button>
-                <div id="photoPreview" style="display:none;margin-top:10px;">
-                    <img id="previewImg" style="max-width:100%;max-height:200px;border-radius:10px;border:2px solid #e5e7eb;">
-                    <button type="button" onclick="removePhoto()" style="margin-top:6px;background:#fee2e2;border:1px solid #fecaca;color:#dc2626;padding:6px 12px;border-radius:8px;font-size:12px;cursor:pointer;">✕ 移除照片</button>
+            <div class="form-group photo-upload-section">
+                <label class="photo-upload-label">📷 上傳照片（可選）</label>
+                
+                <div id="photoUploadArea" class="photo-upload-area" onclick="document.getElementById('photoInput').click()">
+                    <div id="photoPlaceholder">
+                        <div class="photo-upload-icon">📷</div>
+                        <div class="photo-upload-text">
+                            點擊上傳照片 或 <span>選擇檔案</span>
+                        </div>
+                        <div class="photo-upload-text" style="font-size:11px;margin-top:4px;">支援 JPG、PNG、GIF、WebP（最大 5MB）</div>
+                    </div>
+                    <div id="photoPreviewContainer" class="photo-preview-container">
+                        <img id="photoPreviewImg" class="photo-preview-img" />
+                        <button class="photo-remove-btn" onclick="removePhoto(event)" title="移除照片">✕</button>
+                        <div id="photoUploadedBadge" class="photo-uploaded-badge" style="display:none;">
+                            ✓ 已選擇照片
+                        </div>
+                    </div>
+                    <div id="photoUploadingOverlay" class="photo-uploading-overlay" style="display:none;">
+                        <div class="spinner"></div>
+                        <div style="font-size:13px;color:#666;">處理中...</div>
+                    </div>
                 </div>
+                <input type="file" id="photoInput" accept="image/*" onchange="handlePhotoSelect(this)" />
             </div>
             
             <button class="btn btn-primary" onclick="submitReport()">
@@ -524,7 +650,6 @@
         let selectedProduct = null;
         let reportHistory = [];
         let productsCache = [];
-        let selectedPhotoBase64 = null;
         
         // ==================== Initialization ====================
         document.addEventListener('DOMContentLoaded', () => {
@@ -952,6 +1077,53 @@
         }
         
 
+        // ==================== Photo Upload ====================
+        let selectedPhotoBase64 = null;
+        
+        function handlePhotoSelect(input) {
+            const file = input.files[0];
+            if (!file) return;
+            
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+                alert('請選擇圖片檔案！');
+                return;
+            }
+            
+            // Validate file size (max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                alert('圖片大小不能超過 5MB！');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                selectedPhotoBase64 = e.target.result;
+                
+                // Show preview
+                document.getElementById('photoPlaceholder').style.display = 'none';
+                document.getElementById('photoPreviewContainer').classList.add('show');
+                document.getElementById('photoPreviewImg').src = selectedPhotoBase64;
+                document.getElementById('photoUploadedBadge').style.display = 'inline-flex';
+                document.getElementById('photoUploadArea').classList.add('has-photo');
+            };
+            reader.onerror = function() {
+                alert('圖片讀取失敗，請重試！');
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        function removePhoto(event) {
+            event.stopPropagation();
+            selectedPhotoBase64 = null;
+            document.getElementById('photoInput').value = '';
+            document.getElementById('photoPlaceholder').style.display = 'block';
+            document.getElementById('photoPreviewContainer').classList.remove('show');
+            document.getElementById('photoPreviewImg').src = '';
+            document.getElementById('photoUploadedBadge').style.display = 'none';
+            document.getElementById('photoUploadArea').classList.remove('has-photo');
+        }
+        
         // ==================== Submit Report ====================
         function submitReport() {
             const note = document.getElementById('reportNote').value.trim();
@@ -971,8 +1143,7 @@
                 productName: selectedProduct.name,
                 price: selectedProduct.price || '',
                 note: note || '-',
-                photoBase64: selectedPhotoBase64 || null
-
+                photo: selectedPhotoBase64 || ''
             };
             
             // Save locally first
@@ -1004,26 +1175,12 @@
                     productName: report.productName,
                     price: report.price || '',
                     note: report.note,
-                    timestamp: report.timestamp,
-                    hasPhoto: report.photoBase64 ? 'true' : 'false'
+                    timestamp: report.timestamp
                 });
                 
                 const url = `${GOOGLE_SHEETS_CONFIG.reportsUrl}?${params.toString()}`;
                 
                 await fetch(url);
-                
-                // If there's a photo, push it separately via POST
-                if (report.photoBase64) {
-                    await fetch(GOOGLE_SHEETS_CONFIG.reportsUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            action: 'addReportPhoto',
-                            reportId: report.id,
-                            photoBase64: report.photoBase64
-                        })
-                    });
-                }
             } catch (err) {
                 console.error('Failed to push report to Google Sheets:', err);
             }
@@ -1036,7 +1193,6 @@
                 dailyReportsData.forEach((r, index) => {
                     const deleteBtn = currentUser.isAdmin ? 
                         `<button onclick="deleteReportById('${r.id}', '${r.name}', '${r.store}')" style="background:#fee2e2;border:1px solid #fecaca;color:#dc2626;padding:4px 10px;border-radius:6px;font-size:11px;cursor:pointer;">Delete</button>` : '';
-                    const photoHtml = r.photoBase64 ? `<img src="${r.photoBase64}" style="max-width:100%;max-height:120px;border-radius:8px;margin-top:6px;border:1px solid #e5e7eb;">` : (r.hasPhoto === 'true' ? '<div style="font-size:11px;color:#888;margin-top:4px;">📷 有照片</div>' : '');
                     
                     html += `
                         <div class="history-item">
@@ -1045,9 +1201,9 @@
                                 <span class="time">${r.timestamp}</span>
                             </div>
                             <div style="font-size:12px;color:#6b7280;margin:5px 0;">${r.name} | ${r.store}</div>
-                            ${photoHtml}
-                            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;">
-                                ${r.note && r.note !== '-' ? `<div class="note">${r.note}</div>` : '<div></div>'}
+                            ${r.photo ? `<img src="${r.photo}" style="width:80px;height:80px;object-fit:cover;border-radius:8px;margin:5px 0;cursor:pointer;" onclick="showPhotoModal('${r.photo}')" title="點擊放大" />` : ''}
+                            <div style="display:flex;justify-content:space-between;align-items:center;">
+                                ${r.note ? `<div class="note">${r.note}</div>` : '<div></div>'}
                                 ${deleteBtn}
                             </div>
                         </div>
@@ -1078,8 +1234,8 @@
                                     <span class="time">${r.timestamp || r.date || ''}</span>
                                 </div>
                                 <div style="font-size:12px;color:#888;margin:5px 0;">👤 ${r.name || ''} | 🏪 ${r.store || ''}</div>
-                                ${r.photoBase64 ? `<img src="${r.photoBase64}" style="max-width:100%;max-height:120px;border-radius:8px;margin-top:6px;border:1px solid #e5e7eb;">` : ''}
-                                <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;">
+                                ${r.photo ? `<img src="${r.photo}" style="width:80px;height:80px;object-fit:cover;border-radius:8px;margin:5px 0;cursor:pointer;" onclick="showPhotoModal('${r.photo}')" title="點擊放大" />` : ''}
+                                <div style="display:flex;justify-content:space-between;align-items:center;">
                                     ${r.note && r.note !== '-' ? `<div class="note">📝 ${r.note}</div>` : '<div></div>'}
                                 </div>
                             </div>
@@ -1090,46 +1246,41 @@
             }
         }
         
-        // ==================== Photo Upload ====================
-        function previewPhoto(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            
-            if (!file.type.startsWith('image/')) {
-                alert('請選擇圖片檔案');
-                return;
-            }
-            
-            if (file.size > 5 * 1024 * 1024) {
-                alert('圖片大小不可超過 5MB');
-                return;
-            }
-            
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                selectedPhotoBase64 = e.target.result;
-                document.getElementById('previewImg').src = selectedPhotoBase64;
-                document.getElementById('photoPreview').style.display = 'block';
-            };
-            reader.readAsDataURL(file);
-        }
-        
-        function removePhoto() {
-            selectedPhotoBase64 = null;
-            document.getElementById('reportPhoto').value = '';
-            document.getElementById('photoPreview').style.display = 'none';
-        }
-        
         // ==================== Reset Form ====================
         function resetForm() {
             document.getElementById('productPN').value = '';
             document.getElementById('reportNote').value = '';
             document.getElementById('productInfo').classList.remove('show');
             selectedProduct = null;
-            removePhoto();
+            
+            // Clear photo
+            selectedPhotoBase64 = null;
+            document.getElementById('photoInput').value = '';
+            document.getElementById('photoPlaceholder').style.display = 'block';
+            document.getElementById('photoPreviewContainer').classList.remove('show');
+            document.getElementById('photoPreviewImg').src = '';
+            document.getElementById('photoUploadedBadge').style.display = 'none';
+            document.getElementById('photoUploadArea').classList.remove('has-photo');
             
             document.getElementById('successResult').classList.add('hidden');
             document.getElementById('reportForm').classList.add('active');
+        }
+    </script>
+
+    <!-- Photo Modal -->
+    <div id="photoModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);z-index:9999;align-items:center;justify-content:center;" onclick="closePhotoModal()">
+        <img id="photoModalImg" style="max-width:90%;max-height:90%;border-radius:12px;object-fit:contain;" />
+        <button style="position:absolute;top:20px;right:20px;background:rgba(255,255,255,0.2);border:none;color:#fff;font-size:24px;width:44px;height:44px;border-radius:50%;cursor:pointer;" onclick="closePhotoModal()">✕</button>
+    </div>
+    
+    <script>
+        function showPhotoModal(src) {
+            document.getElementById('photoModalImg').src = src;
+            document.getElementById('photoModal').style.display = 'flex';
+        }
+        
+        function closePhotoModal() {
+            document.getElementById('photoModal').style.display = 'none';
         }
     </script>
 
