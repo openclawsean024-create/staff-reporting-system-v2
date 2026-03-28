@@ -990,6 +990,10 @@
             reportHistory.unshift(report);
             localStorage.setItem('staffReport_history', JSON.stringify(reportHistory));
             
+            // Invalidate daily sales cache so Continue shows fresh data
+            const cacheKey = 'staffReport_dailySales_' + (currentUser.isAdmin ? 'admin' : (currentUser.name + '_' + currentUser.store));
+            localStorage.removeItem(cacheKey);
+            
             // Try to push to Google Sheets
             pushReportToSheets(report);
             
@@ -1093,6 +1097,9 @@
 
             document.getElementById('successResult').classList.add('hidden');
             document.getElementById('reportForm').classList.add('active');
+
+            // Reload daily sales with fresh data (cache was invalidated on submit)
+            loadDailySales();
         }
     </script>
 
