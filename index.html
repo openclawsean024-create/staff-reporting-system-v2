@@ -3,28 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>駐點人員回報系統</title>
-    <!-- Barcode Scanner Library -->
+    <title>駐點回報系統 V2</title>
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
-    <!-- Poppins Font -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
+
         :root {
             --primary: #0071e3;
             --primary-hover: #0077ed;
-            --secondary: #86868b;
-            --accent: #34c759;
-            --danger: #ff3b30;
-            --warning: #ff9500;
             --text: #1d1d1f;
             --text-secondary: #86868b;
             --bg: #fbfbfd;
             --card-bg: #ffffff;
             --border: #d2d2d7;
+            --accent: #34c759;
+            --danger: #ff3b30;
         }
-        
+
         body {
             font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
             background: var(--bg);
@@ -32,83 +28,67 @@
             color: var(--text);
             padding: 20px;
             -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
         }
-        
-        .container {
-            max-width: 480px;
-            margin: 0 auto;
-        }
-        
+
+        .container { max-width: 480px; margin: 0 auto; }
+
         .header {
             text-align: center;
-            padding: 30px 0 40px;
+            padding: 24px 0 32px;
         }
-        
+
         .header h1 {
-            font-size: 28px;
+            font-size: 26px;
             font-weight: 600;
             letter-spacing: -0.004em;
-            color: var(--text);
         }
-        
+
         .header .user-info {
             font-size: 14px;
             color: var(--text-secondary);
             margin-top: 8px;
-            font-weight: 400;
         }
-        
+
         .card {
             background: var(--card-bg);
-            border: none;
             border-radius: 20px;
             padding: 24px;
             margin-bottom: 20px;
             box-shadow: 0 4px 24px rgba(0,0,0,0.06);
         }
-        
+
         .card-title {
-            font-size: 21px;
+            font-size: 20px;
             font-weight: 600;
-            letter-spacing: -0.012em;
             margin-bottom: 20px;
-            color: var(--text);
         }
-        
-        .form-group {
-            margin-bottom: 16px;
-        }
-        
+
+        .form-group { margin-bottom: 16px; }
+
         label {
             display: block;
             margin-bottom: 8px;
             font-weight: 500;
-            color: var(--text);
             font-size: 14px;
         }
-        
-        input, textarea, select {
+
+        input {
             width: 100%;
             padding: 14px 16px;
             background: var(--bg);
             border: 1px solid var(--border);
             border-radius: 12px;
             font-size: 17px;
-            transition: all 0.2s ease;
+            font-family: inherit;
+            transition: border-color 0.2s;
         }
-        
-        input:focus, textarea:focus, select:focus {
+
+        input:focus {
             outline: none;
             border-color: var(--primary);
             box-shadow: 0 0 0 4px rgba(0,113,227,0.15);
         }
-        
-        select option {
-            background: #ffffff;
-            color: #1f2937;
-        }
-        
+
         .btn {
             padding: 18px 24px;
             border: none;
@@ -116,70 +96,39 @@
             font-size: 17px;
             font-weight: 500;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: background 0.2s;
+            width: 100%;
+            font-family: inherit;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-            width: 100%;
-            font-family: 'Poppins', -apple-system, sans-serif;
         }
-        
-        .btn-primary {
-            background: var(--primary);
-            color: #fff;
-        }
-        
-        .btn-primary:hover {
-            background: var(--primary-hover);
-        }
-        
+
+        .btn-primary { background: var(--primary); color: #fff; }
+        .btn-primary:hover { background: var(--primary-hover); }
+        .btn-primary:disabled { background: #a0c0e0; cursor: not-allowed; }
+
         .btn-secondary {
             background: rgba(0,0,0,0.05);
             color: var(--primary);
         }
-        
-        .btn-secondary:hover {
-            background: rgba(0,0,0,0.1);
-        }
-            background: rgba(255,255,255,0.15);
-        }
-        
-        .product-search {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-        
-        .product-search input {
-            flex: 1;
-        }
-        
-        .product-search .btn {
-            width: auto;
-            padding: 12px 16px;
-        }
-        
+
+        .btn-secondary:hover { background: rgba(0,0,0,0.1); }
+
         .scanner-container {
             display: none;
             margin-bottom: 15px;
         }
-        
-        .scanner-container.active {
-            display: block;
-        }
-        
+
+        .scanner-container.active { display: block; }
+
         #scanner-wrapper {
             width: 100%;
             border-radius: 10px;
             overflow: hidden;
             background: #000;
         }
-        
-        #reader {
-            width: 100%;
-        }
-        
+
         .scanner-close {
             display: block;
             width: 100%;
@@ -192,8 +141,9 @@
             cursor: pointer;
             margin-top: 10px;
             border-radius: 8px;
+            font-family: inherit;
         }
-        
+
         .product-info {
             background: #f9fafb;
             border: 1px solid #e5e7eb;
@@ -202,72 +152,31 @@
             margin-bottom: 15px;
             display: none;
         }
-        
-        .product-info.show {
-            display: block;
-        }
-        
+
+        .product-info.show { display: block; }
+
         .product-info h4 {
             color: var(--primary);
             margin-bottom: 10px;
             font-size: 14px;
+            font-weight: 600;
         }
-        
-        .product-info .info-row {
+
+        .info-row {
             display: flex;
             justify-content: space-between;
-            padding: 6px 0;
+            padding: 7px 0;
             border-bottom: 1px solid #e5e7eb;
-            font-size: 13px;
-        }
-        
-        .product-info .info-row:last-child {
-            border-bottom: none;
-        }
-        
-        .product-info .info-label {
-            color: #6b7280;
-        }
-        
-        .product-info .info-value {
-            color: #1f2937;
-            font-weight: 500;
-        }
-        
-        #reportForm {
-            display: none;
-        }
-        
-        #reportForm.active {
-            display: block;
-        }
-        
-        textarea {
-            min-height: 80px;
-            resize: vertical;
-        }
-        
-        .result-message {
-            text-align: center;
-            padding: 30px;
-        }
-        
-        .result-message .icon {
-            font-size: 48px;
-            margin-bottom: 15px;
-        }
-        
-        .result-message h3 {
-            font-size: 1.3em;
-            margin-bottom: 10px;
-            color: #1f2937;
-        }
-        
-        .result-message p {
-            color: #6b7280;
             font-size: 14px;
         }
-        
+
+        .info-row:last-child { border-bottom: none; }
+        .info-label { color: #6b7280; }
+        .info-value { color: #1f2937; font-weight: 500; }
+
+        #reportForm { display: none; }
+        #reportForm.active { display: block; }
+
         .history-item {
             background: #f9fafb;
             border-radius: 10px;
@@ -275,30 +184,19 @@
             margin-bottom: 10px;
             border: 1px solid #e5e7eb;
         }
-        
-        .history-item .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0;
-            margin-bottom: 8px;
-        }
-        
+
         .history-item .pn {
             font-weight: 600;
             color: var(--primary);
+            font-size: 14px;
         }
-        
+
         .history-item .time {
             font-size: 12px;
             color: #6b7280;
+            margin-top: 4px;
         }
-        
-        .history-item .note {
-            font-size: 13px;
-            color: #6b7280;
-        }
-        
+
         .logout-btn {
             position: fixed;
             top: 15px;
@@ -310,109 +208,108 @@
             border-radius: 8px;
             font-size: 12px;
             cursor: pointer;
+            font-family: inherit;
         }
-        
+
         .hidden { display: none !important; }
-        
-        .loading {
-            text-align: center;
-            padding: 20px;
-            color: #888;
-        }
-        
+
         .spinner {
             width: 30px;
             height: 30px;
-            border: 3px solid rgba(0,168,232,0.3);
+            border: 3px solid rgba(0,113,227,0.2);
             border-top-color: var(--primary);
             border-radius: 50%;
             animation: spin 1s linear infinite;
             margin: 0 auto 10px;
         }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .loading { text-align: center; padding: 20px; color: #888; font-size: 14px; }
+
+        .msg {
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 14px;
+            margin-bottom: 12px;
+            text-align: center;
         }
-        
+
+        .msg-error { background: #fee2e2; color: var(--danger); }
+        .msg-success { background: #d1fae5; color: #065f46; }
+
+        #searchResults {
+            display: none;
+            max-height: 200px;
+            overflow-y: auto;
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            margin-top: 5px;
+        }
+
+        #searchResults > div {
+            padding: 10px;
+            border-bottom: 1px solid #f3f4f6;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        #searchResults > div:hover { background: #f0f7ff; }
+        #searchResults > div:last-child { border-bottom: none; }
+
+        .result-message { text-align: center; padding: 40px 20px; }
+        .result-message .icon { font-size: 56px; margin-bottom: 16px; }
+        .result-message h3 { font-size: 22px; margin-bottom: 10px; }
+        .result-message p { color: #6b7280; font-size: 14px; }
     </style>
 </head>
 <body>
     <button class="logout-btn hidden" id="logoutBtn" onclick="logout()">登出</button>
-    
+
     <div class="container">
         <div class="header">
-            <h1>📋 駐點人員回報系統</h1>
+            <h1>📋 駐點回報系統 V2</h1>
             <div class="user-info hidden" id="userInfo">
-                👤 <span id="displayName"></span> | 🏪 <span id="displayStore"></span>
+                👤 <span id="displayName"></span> / <span id="displayStore"></span>
             </div>
         </div>
-        
+
         <!-- Login Form -->
         <div class="card" id="loginForm">
-            <div class="card-title">
-                Please Login
-            </div>
-            
+            <div class="card-title">登入 Login</div>
+
             <div class="form-group">
                 <label>姓名 Name</label>
-                <input type="text" id="loginName" placeholder="請輸入您的姓名">
+                <input type="text" id="loginName" placeholder="請輸入您的姓名" autocomplete="off">
             </div>
-            
+
             <div class="form-group">
                 <label>店名 Store</label>
-                <select id="loginStore">
-                    <option value="">載入中...</option>
-                </select>
+                <input type="text" id="loginStore" placeholder="請輸入店名" autocomplete="off">
             </div>
-            
-            <button class="btn btn-primary" onclick="login()">
-                Login 登入
-            </button>
+
+            <div id="loginError" class="msg msg-error hidden"></div>
+
+            <button class="btn btn-primary" onclick="login()">進入系統 Enter</button>
         </div>
-        
+
         <!-- Report Form -->
         <div class="card" id="reportForm">
-            <!-- Daily Sales Summary -->
-            <div id="dailySales" style="display:none;background:linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);border-radius:12px;padding:15px;margin-bottom:15px;text-align:center;color:#fff;">
-                <div style="font-size:12px;opacity:0.9;">累積營業額 Cumulative Sales</div>
-                <div style="font-size:28px;font-weight:900;" id="totalSalesAmount">$0</div>
-                <div style="font-size:12px;opacity:0.8;" id="totalSalesCount">0筆成交</div>
-            </div>
-            
-            <div class="card-title" id="productReportTitle">
-                Product Report 產品回報
-            </div>
-            
-            <!-- Product Report Section -->
-            <div id="productReportSection">
-            
-            <!-- Barcode Scanner -->
-            <div class="scanner-container" id="scannerContainer">
-                <div id="scanner-wrapper">
-                    <div id="reader"></div>
-                </div>
-                <button class="scanner-close" onclick="stopScanner()">關閉掃描器</button>
-            </div>
-            
-            <!-- Product Search -->
+            <div class="card-title">產品回報 Product Report</div>
+
+            <!-- PN Code Search -->
             <div class="form-group">
-                <label>產品 PN 碼</label>
-                <input type="text" id="productPN" placeholder="請輸入 PN 碼" oninput="searchProductsRealTime()">
-                
-                <!-- Real-time Search Results -->
-                <div id="searchResults" style="display:none;max-height:200px;overflow-y:auto;background:#fff;border:1px solid #e5e7eb;border-radius:10px;margin-top:5px;"></div>
-                
-                <button class="btn btn-secondary" style="margin-top:8px;width:100%" onclick="showAllProducts()">
-                    顯示全部產品
-                </button>
-                
-                <!-- All Products List -->
-                <div id="allProducts" style="display:none;max-height:250px;overflow-y:auto;background:#fff;border:1px solid #e5e7eb;border-radius:10px;margin-top:10px;padding:10px;"></div>
+                <label>PN 碼</label>
+                <input type="text" id="productPN" placeholder="請輸入或掃描 PN 碼" autocomplete="off">
+                <div id="searchResults"></div>
             </div>
-            
+
+            <button class="btn btn-secondary" style="margin-bottom:15px" onclick="searchProduct()">查詢 Query</button>
+
             <!-- Product Info -->
             <div class="product-info" id="productInfo">
-                <h4>Product Info 產品資訊</h4>
+                <h4>產品資訊 Product Info</h4>
                 <div class="info-row">
                     <span class="info-label">PN 碼</span>
                     <span class="info-value" id="infoPN">-</span>
@@ -434,675 +331,261 @@
                     <span class="info-value" id="infoPrice">-</span>
                 </div>
             </div>
-            
-            <!-- Report Details -->
-            <div class="form-group">
-                <label>備註說明</label>
-                <textarea id="reportNote" placeholder="請輸入任何需要記錄的事項..."></textarea>
-            </div>
-            
-            <button class="btn btn-primary" onclick="submitReport()">
-                Submit 提交回報
-            </button>
-            
-            </div>
-            
-            <!-- History -->
-            <div style="margin-top: 20px;">
-                <div class="card-title">
-                    Today's Records 今日回報記錄
-                </div>
+
+            <div id="submitError" class="msg msg-error hidden"></div>
+
+            <button class="btn btn-primary" id="submitBtn" onclick="submitReport()">提交回報 Submit</button>
+
+            <!-- Today's Records -->
+            <div style="margin-top:28px">
+                <div class="card-title">今日回報記錄 Today's Records</div>
                 <div id="historyList">
-                    <p style="text-align:center;color:#666;font-size:13px;">尚無回報記錄 No records yet</p>
+                    <p class="loading"><span class="spinner"></span>載入中...</p>
                 </div>
             </div>
         </div>
-        
-        <!-- Success Result -->
+
+        <!-- Success -->
         <div class="card hidden" id="successResult">
             <div class="result-message">
-                <div class="icon" style="font-size:48px;">&#10004;</div>
-                <h3>Success! 回報成功！</h3>
+                <div class="icon">✅</div>
+                <h3>提交成功！</h3>
                 <p>您的回報已送出，感謝您的協助！</p>
-                <button class="btn btn-primary" style="margin-top:20px" onclick="resetForm()">
-                    Continue 繼續回報
-                </button>
+                <button class="btn btn-primary" style="margin-top:24px" onclick="resetForm()">繼續回報 Continue</button>
             </div>
         </div>
     </div>
-    
+
     <script>
-        // ==================== Configuration ====================
-        const GOOGLE_SHEETS_CONFIG = {
-            // Google Apps Script Web App URLs
-            productsUrl: 'https://script.google.com/macros/s/AKfycbykE88LDR2uXa3YKNrHSqGpCx2ufqgb3VGxQhi98SgF3ltnAi2Y8QmyYdH-t2U45hxj/exec',
-            reportsUrl: 'https://script.google.com/macros/s/AKfycbykE88LDR2uXa3YKNrHSqGpCx2ufqgb3VGxQhi98SgF3ltnAi2Y8QmyYdH-t2U45hxj/exec',
-            // Use demo mode - set to true only for testing
-            useDemoMode: false
-        };
-        
-        // Demo product data
-        const demoProducts = [
-            { pn: 'PN001', name: 'iPhone 15 Pro', spec: '256GB', category: '手機' },
-            { pn: 'PN002', name: 'MacBook Air M3', spec: '13吋', category: '筆電' },
-            { pn: 'PN003', name: 'AirPods Pro 2', spec: 'USB-C', category: '耳機' },
-            { pn: 'PN004', name: 'iPad Pro 12.9', spec: '256GB', category: '平板' },
-            { pn: 'PN005', name: 'Apple Watch S9', spec: '45mm', category: '手錶' },
-            { pn: 'PN006', name: 'Samsung S24 Ultra', spec: '512GB', category: '手機' },
-            { pn: 'PN007', name: 'Sony WH-1000XM5', spec: '旗艦款', category: '耳機' },
-            { pn: 'PN008', name: 'Dell XPS 15', spec: 'i7/32GB', category: '筆電' },
-            { pn: 'PN009', name: 'Nintendo Switch', spec: 'OLED', category: '遊戲機' },
-            { pn: 'PN010', name: 'PS5', spec: '光碟版', category: '遊戲機' }
-        ];
-        
+        // ==================== Config ====================
+        const API_BASE = location.origin;
+
         // ==================== State ====================
         let currentUser = null;
-        let html5QrCode = null;
         let selectedProduct = null;
-        let reportHistory = [];
         let productsCache = [];
-        
-        // ==================== Initialization ====================
+
+        // ==================== Init ====================
         document.addEventListener('DOMContentLoaded', () => {
             checkLoginStatus();
-            loadStores(); // 載入門市清單
-            loadProductsFromSheet().catch(err => console.log('Products load error:', err));
+            loadProducts();
         });
-        
-        // 載入門市清單
-        async function loadStores() {
+
+        // ==================== Products ====================
+        async function loadProducts() {
             try {
-                const url = `${GOOGLE_SHEETS_CONFIG.productsUrl}?action=getStores`;
-                const response = await fetch(url);
-                const stores = await response.json();
-                
-                const select = document.getElementById('loginStore');
-                select.innerHTML = '<option value="">請選擇門市</option>';
-                
-                if (Array.isArray(stores)) {
-                    stores.forEach(store => {
-                        const option = document.createElement('option');
-                        option.value = store;
-                        option.textContent = store;
-                        select.appendChild(option);
-                    });
+                const res = await fetch(`${API_BASE}/api/products`);
+                if (res.ok) {
+                    productsCache = await res.json();
                 }
-                
-            } catch (err) {
-                console.log('Failed to load stores:', err);
+            } catch (e) {
+                productsCache = [];
             }
         }
-        
+
         // ==================== Login ====================
         function login() {
-            console.log('Login function called');
             const name = document.getElementById('loginName').value.trim();
             const store = document.getElementById('loginStore').value.trim();
-            
-            if (!name || !store) {
-                alert('請輸入姓名和店名！');
+            const errEl = document.getElementById('loginError');
+
+            if (!name) {
+                errEl.textContent = '請填寫姓名';
+                errEl.classList.remove('hidden');
                 return;
             }
-            
-            console.log('Login data:', name, store);
-            
-            // 檢查是否為 Admin
-            const isAdmin = (name === 'Admin' && store === 'Admin');
-            
-            currentUser = {
-                name: name,
-                store: store,
-                isAdmin: isAdmin,
-                loginTime: new Date().toISOString()
-            };
-            
-            localStorage.setItem('staffReport_user', JSON.stringify(currentUser));
-            loadHistory();
+            if (!store) {
+                errEl.textContent = '請填寫店名';
+                errEl.classList.remove('hidden');
+                return;
+            }
+
+            errEl.classList.add('hidden');
+            currentUser = { name, store };
+
+            localStorage.setItem('staffreport_v2_user', JSON.stringify(currentUser));
             showMainForm();
-            console.log('Login completed, isAdmin:', isAdmin);
+            loadRecords();
         }
-        
+
         function checkLoginStatus() {
-            const saved = localStorage.getItem('staffReport_user');
+            const saved = localStorage.getItem('staffreport_v2_user');
             if (saved) {
                 currentUser = JSON.parse(saved);
-                // 保留登入資訊，顯示主要表單並載入歷史記錄
-                loadHistory();
                 showMainForm();
-                return;
+                loadRecords();
             }
-            
-            document.getElementById('loginForm').style.display = 'block';
-            document.getElementById('reportForm').classList.remove('active');
-            document.getElementById('logoutBtn').classList.add('hidden');
-            document.getElementById('userInfo').classList.add('hidden');
         }
-        
+
         function logout() {
             if (confirm('確定要登出嗎？')) {
-                localStorage.removeItem('staffReport_user');
-                // 保留銷售記錄，只移除用戶登入資訊
-                currentUser = null;
+                localStorage.removeItem('staffreport_v2_user');
                 location.reload();
             }
         }
-        
+
         function showMainForm() {
             document.getElementById('loginForm').style.display = 'none';
             document.getElementById('reportForm').classList.add('active');
             document.getElementById('logoutBtn').classList.remove('hidden');
             document.getElementById('userInfo').classList.remove('hidden');
-            
             document.getElementById('displayName').textContent = currentUser.name;
             document.getElementById('displayStore').textContent = currentUser.store;
-            
-            // 顯示/隱藏 Admin 按鈕
-            const existingBtn = document.getElementById('adminSyncBtn');
-            if (existingBtn) existingBtn.remove();
-            
-            if (currentUser.isAdmin) {
-                const btn = document.createElement('button');
-                btn.id = 'adminSyncBtn';
-                btn.className = 'btn btn-primary';
-                btn.style.cssText = 'margin-top:15px;width:100%;font-size:14px;';
-                btn.innerHTML = 'Download CSV 下載.csv';
-                btn.onclick = syncToGoogleSheet;
-                
-                // Add clear all button for Admin
-                const clearBtn = document.createElement('button');
-                clearBtn.id = 'adminClearBtn';
-                clearBtn.className = 'btn btn-secondary';
-                clearBtn.style.cssText = 'margin-top:10px;width:100%;font-size:14px;background:#fee2e2;border-color:#fecaca;color:#dc2626;';
-                clearBtn.innerHTML = 'Clear All 清除全部';
-                clearBtn.onclick = clearAllReports;
-                
-                const dailySales = document.getElementById('dailySales');
-                if (dailySales) {
-                    dailySales.parentNode.insertBefore(btn, dailySales.nextSibling);
-                    btn.parentNode.insertBefore(clearBtn, btn.nextSibling);
-                } else {
-                    document.getElementById('reportForm').appendChild(btn);
-                    document.getElementById('reportForm').appendChild(clearBtn);
-                }
-            }
-            
-            // Load daily sales
-            loadDailySales();
-            
-            // Admin: 隱藏產品回報表單
-            if (currentUser.isAdmin) {
-                document.getElementById('productReportSection').style.display = 'none';
-                document.getElementById('productReportTitle').style.display = 'none';
-            }
-        }
-        
-        // Admin 匯出功能 - 下載 Excel
-        function syncToGoogleSheet() {
-            if (!dailyReportsData || dailyReportsData.length === 0) {
-                alert('沒有資料可匯出');
-                return;
-            }
-            
-            // 建立 CSV 內容（可以用 Excel 開啟）
-            let csv = 'ID,時間,姓名,店名,PN,品名,價格,備註\n';
-            
-            dailyReportsData.forEach(r => {
-                csv += `${r.id || ''},${r.time || ''},${r.name || ''},${r.store || ''},${r.pn || ''},${r.productName || ''},${r.price || ''},${r.note || ''}\n`;
-            });
-            
-            // 建立 Blob 並下載
-            const BOM = '\uFEFF'; // UTF-8 BOM
-            const blob = new Blob([BOM + csv], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = `銷售報表_${new Date().toISOString().split('T')[0]}.csv`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
-        }
-        
-        // Admin 清除全部資料
-        async function clearAllReports() {
-            if (!confirm('確定要清除所有銷售資料嗎？此操作無法復原！')) {
-                return;
-            }
-            
-            if (!dailyReportsData || dailyReportsData.length === 0) {
-                alert('沒有資料可清除');
-                return;
-            }
-            
-            try {
-                // Parallel delete all records at once
-                await Promise.all(dailyReportsData.map(report => {
-                    const params = new URLSearchParams({
-                        action: 'deleteReport',
-                        id: report.id,
-                        name: report.name || '',
-                        store: report.store || ''
-                    });
-                    return fetch(`${GOOGLE_SHEETS_CONFIG.reportsUrl}?${params.toString()}`);
-                }));
-                
-                alert('已清除所有銷售資料');
-                // Invalidate cache and reload
-                localStorage.removeItem('staffReport_dailySales_admin');
-                loadDailySales();
-            } catch (err) {
-                alert('清除失敗: ' + err.message);
-            }
-        }
-        
-        // 單筆刪除
-        async function deleteReportById(reportId, reportName, reportStore) {
-            if (!confirm('確定要刪除這筆資料嗎？')) {
-                return;
-            }
-            
-            try {
-                const params = new URLSearchParams({
-                    action: 'deleteReport',
-                    id: reportId,
-                    name: reportName || '',
-                    store: reportStore || ''
-                });
-                
-                await fetch(`${GOOGLE_SHEETS_CONFIG.reportsUrl}?${params.toString()}`);
-                loadDailySales();
-            } catch (err) {
-                alert('刪除失敗: ' + err.message);
-            }
-        }
-        
-        // ==================== Daily Sales ====================
-        let dailyReportsData = [];
-        
-        async function loadDailySales() {
-            if (GOOGLE_SHEETS_CONFIG.useDemoMode) return;
-            if (!currentUser) return;
-
-            // Cache key per user so admin vs regular users don't clobber each other
-            const cacheKey = 'staffReport_dailySales_' + (currentUser.isAdmin ? 'admin' : (currentUser.name + '_' + currentUser.store));
-            const CACHE_TTL_MS = currentUser.isAdmin ? 10000 : 30000; // Admin: 10s, User: 30s
-
-            // Try to restore from cache immediately
-            try {
-                const cached = localStorage.getItem(cacheKey);
-                if (cached) {
-                    const { data, ts } = JSON.parse(cached);
-                    if (Date.now() - ts < CACHE_TTL_MS) {
-                        // Fresh cache — use it immediately, no loading flicker
-                        applyDailySalesData(data);
-                        return;
-                    }
-                }
-            } catch (e) { /* ignore cache errors */ }
-
-            // Show loading state (only if no cached data yet)
-            const cachedRaw = localStorage.getItem(cacheKey);
-            if (!cachedRaw) {
-                document.getElementById('dailySales').style.display = 'block';
-                document.getElementById('totalSalesAmount').textContent = '載入中...';
-                document.getElementById('totalSalesCount').textContent = '';
-            }
-
-            // Stale-while-revalidate: fetch fresh data in background
-            fetchDailySalesFromNetwork(cacheKey);
         }
 
-        async function fetchDailySalesFromNetwork(cacheKey) {
-            try {
-                let url;
-                if (currentUser && currentUser.isAdmin) {
-                    url = `${GOOGLE_SHEETS_CONFIG.productsUrl}?action=getAllReports`;
-                } else if (currentUser) {
-                    url = `${GOOGLE_SHEETS_CONFIG.productsUrl}?action=getUserReports&name=${encodeURIComponent(currentUser.name)}&store=${encodeURIComponent(currentUser.store)}`;
-                } else {
-                    return;
-                }
-
-                const response = await fetch(url);
-                const data = await response.json();
-
-                if (data.total !== undefined || data.totalSales !== undefined) {
-                    // Save to cache
-                    try {
-                        localStorage.setItem(cacheKey, JSON.stringify({ data, ts: Date.now() }));
-                    } catch (e) { /* storage full — ignore */ }
-
-                    applyDailySalesData(data);
-                }
-            } catch (err) {
-                console.log('Daily sales load error:', err);
-            }
-        }
-
-        function applyDailySalesData(data) {
-            document.getElementById('dailySales').style.display = 'block';
-            const totalAmount = data.total || data.totalSales || 0;
-            document.getElementById('totalSalesAmount').textContent = '$' + totalAmount.toLocaleString();
-            document.getElementById('totalSalesCount').textContent = (data.count || 0) + '筆成交';
-            dailyReportsData = data.reports || [];
-            loadHistory();
-        }
-        
-        // ==================== Load Products from Google Sheets ====================
-        async function loadProductsFromSheet() {
-            if (GOOGLE_SHEETS_CONFIG.useDemoMode) {
-                productsCache = demoProducts;
-                return;
-            }
-            
-            try {
-                const url = `${GOOGLE_SHEETS_CONFIG.productsUrl}?action=getProducts`;
-                const response = await fetch(url);
-                const products = await response.json();
-                
-                if (Array.isArray(products) && products.length > 0) {
-                    productsCache = products;
-                }
-            } catch (err) {
-                console.error('Failed to load products:', err);
-                productsCache = demoProducts;
-            }
-        }
-        
         // ==================== Product Search ====================
-        function searchProduct() {
-            const pn = document.getElementById('productPN').value.trim().toUpperCase();
-            
-            if (!pn) {
-                alert('請輸入 PN 碼！');
+        document.getElementById('productPN').addEventListener('input', function () {
+            const q = this.value.trim().toUpperCase();
+            const resultsEl = document.getElementById('searchResults');
+
+            if (!q) {
+                resultsEl.style.display = 'none';
                 return;
             }
-            
-            const product = productsCache.find(p => p.pn.toUpperCase() === pn);
-            
-            if (product) {
-                selectedProduct = product;
-                showProductInfo(product);
-            } else {
-                alert('找不到該產品，請確認 PN 碼是否正確！');
-                selectedProduct = null;
-                document.getElementById('productInfo').classList.remove('show');
-            }
-        }
-        
-        function showProductInfo(product) {
-            document.getElementById('infoPN').textContent = product.pn;
-            document.getElementById('infoName').textContent = product.name;
-            document.getElementById('infoSpec').textContent = product.spec;
-            document.getElementById('infoCategory').textContent = product.category;
-            document.getElementById('infoPrice').textContent = product.price || '-';
-            document.getElementById('productInfo').classList.add('show');
-        }
-        
-        // ==================== Barcode Scanner (html5-qrcode) ====================
-        function startScanner() {
-            document.getElementById('scannerContainer').classList.add('active');
-            
-            html5QrCode = new Html5Qrcode("reader");
-            
-            const config = { 
-                fps: 10,
-                qrbox: { width: 250, height: 150 },
-                aspectRatio: 1.777
-            };
-            
-            html5QrCode.start(
-                { facingMode: "environment" },
-                config,
-                onScanSuccess,
-                onScanFailure
-            ).catch(err => {
-                alert('無法開啟相機，請確保已授予權限！');
-                stopScanner();
-            });
-        }
-        
-        function onScanSuccess(decodedText, decodedResult) {
-            document.getElementById('productPN').value = decodedText;
-            stopScanner();
-            searchProduct();
-        }
-        
-        // ==================== Real-time Search ====================
-        function searchProductsRealTime() {
-            const query = document.getElementById('productPN').value.trim().toUpperCase();
-            const resultsDiv = document.getElementById('searchResults');
-            const allProductsDiv = document.getElementById('allProducts');
-            
-            // Hide all products list when typing
-            allProductsDiv.style.display = 'none';
-            
-            if (!query) {
-                resultsDiv.style.display = 'none';
-                return;
-            }
-            
-            // Search products
-            const matches = productsCache.filter(p => 
-                p.pn.toUpperCase().includes(query) || 
-                p.name.toUpperCase().includes(query)
+
+            const matches = productsCache.filter(p =>
+                p.pn.toUpperCase().includes(q) ||
+                (p.name && p.name.toUpperCase().includes(q))
             );
-            
+
             if (matches.length === 0) {
-                resultsDiv.innerHTML = '<p style="padding:10px;color:#888;font-size:13px;">找不到符合的產品</p>';
-                resultsDiv.style.display = 'block';
-                return;
+                resultsEl.innerHTML = '<div style="color:#888;pointer:none;">找不到符合的產品</div>';
+            } else {
+                resultsEl.innerHTML = matches.slice(0, 10).map(p =>
+                    `<div onclick="selectProduct('${p.pn}')">${p.pn} — ${p.name || '-'}</div>`
+                ).join('');
             }
-            
-            // Show results
-            let html = '';
-            matches.slice(0, 10).forEach(p => {
-                html += `
-                    <div onclick="selectProduct('${p.pn}')" style="padding:10px;border-bottom:1px solid rgba(255,255,255,0.1);cursor:pointer;">
-                        <div style="font-weight:600;color:var(--primary);font-size:14px;">${p.pn}</div>
-                        <div style="color:#ccc;font-size:13px;">${p.name}</div>
-                    </div>
-                `;
-            });
-            
-            resultsDiv.innerHTML = html;
-            resultsDiv.style.display = 'block';
-        }
-        
+
+            resultsEl.style.display = 'block';
+        });
+
         function selectProduct(pn) {
             document.getElementById('productPN').value = pn;
             document.getElementById('searchResults').style.display = 'none';
             searchProduct();
         }
-        
-        // ==================== Show All Products ====================
-        async function showAllProducts() {
-            const allProductsDiv = document.getElementById('allProducts');
-            const searchResultsDiv = document.getElementById('searchResults');
-            
-            searchResultsDiv.style.display = 'none';
-            
-            if (productsCache.length === 0) {
-                allProductsDiv.innerHTML = '<p style="padding:10px;color:#888;font-size:13px;">載入中...</p>';
-                allProductsDiv.style.display = 'block';
-                // Trigger reload if cache empty
-                await loadProductsFromSheet();
-                if (productsCache.length === 0) {
-                    allProductsDiv.innerHTML = '<p style="padding:10px;color:#ff3b30;font-size:13px;">產品資料載入失敗，請檢查網路後重試</p>';
+
+        function searchProduct() {
+            const pn = document.getElementById('productPN').value.trim().toUpperCase();
+            const errEl = document.getElementById('submitError');
+            errEl.classList.add('hidden');
+
+            if (!pn) {
+                errEl.textContent = '請先輸入 PN 碼';
+                errEl.classList.remove('hidden');
+                return;
+            }
+
+            const product = productsCache.find(p => p.pn.toUpperCase() === pn);
+
+            if (!product) {
+                errEl.textContent = '查無此產品，請確認 PN 碼是否正確';
+                errEl.classList.remove('hidden');
+                selectedProduct = null;
+                document.getElementById('productInfo').classList.remove('show');
+                return;
+            }
+
+            selectedProduct = product;
+            document.getElementById('infoPN').textContent = product.pn;
+            document.getElementById('infoName').textContent = product.name || '-';
+            document.getElementById('infoSpec').textContent = product.spec || '-';
+            document.getElementById('infoCategory').textContent = product.category || '-';
+            document.getElementById('infoPrice').textContent = product.price ? `$${Number(product.price).toLocaleString()}` : '-';
+            document.getElementById('productInfo').classList.add('show');
+        }
+
+        // ==================== Submit ====================
+        async function submitReport() {
+            const errEl = document.getElementById('submitError');
+            errEl.classList.add('hidden');
+
+            if (!selectedProduct) {
+                errEl.textContent = '請先查詢產品';
+                errEl.classList.remove('hidden');
+                return;
+            }
+
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.textContent = '提交中...';
+
+            try {
+                const res = await fetch(`${API_BASE}/api/submit`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: currentUser.name,
+                        store: currentUser.store,
+                        pnCode: selectedProduct.pn,
+                        productInfo: selectedProduct,
+                    }),
+                });
+
+                const data = await res.json();
+
+                if (!res.ok || !data.success) {
+                    errEl.textContent = data.message || '提交失敗，請稍後再試';
+                    errEl.classList.remove('hidden');
+                    btn.disabled = false;
+                    btn.textContent = '提交回報 Submit';
                     return;
                 }
-            }
-            
-            let html = '';
-            productsCache.forEach(p => {
-                html += `
-                    <div onclick="selectProduct('${p.pn}')" style="padding:10px;border-bottom:1px solid rgba(255,255,255,0.1);cursor:pointer;">
-                        <div style="font-weight:600;color:var(--primary);font-size:14px;">${p.pn}</div>
-                        <div style="color:#ccc;font-size:13px;">${p.name}</div>
-                        <div style="color:#888;font-size:11px;">${p.spec || ''} | ${p.category || ''}</div>
-                    </div>
-                `;
-            });
-            
-            allProductsDiv.innerHTML = html;
-            allProductsDiv.style.display = 'block';
-        }
-        
-        function onScanFailure(error) {
-            // Scanning continues...
-        }
-        
-        function stopScanner() {
-            if (html5QrCode) {
-                html5QrCode.stop().then(() => {
-                    html5QrCode = null;
-                }).catch(err => {
-                    console.log(err);
-                    html5QrCode = null;
-                });
-            }
-            document.getElementById('scannerContainer').classList.remove('active');
-        }
-        
 
-        // ==================== Submit Report ====================
-        function submitReport() {
-            const note = document.getElementById('reportNote').value.trim();
-            
-            if (!selectedProduct) {
-                alert('請先查詢產品資訊！');
-                return;
+                // Show success
+                document.getElementById('reportForm').classList.remove('active');
+                document.getElementById('successResult').classList.remove('hidden');
+
+                // Reload records
+                loadRecords();
+
+            } catch (e) {
+                errEl.textContent = '網路錯誤，請稍後再試';
+                errEl.classList.remove('hidden');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '提交回報 Submit';
             }
-            
-            const report = {
-                id: Date.now(),
-                date: new Date().toISOString(),
-                timestamp: new Date().toISOString(),
-                userName: currentUser.name,
-                storeName: currentUser.store,
-                productPN: selectedProduct.pn,
-                productName: selectedProduct.name,
-                price: selectedProduct.price || '',
-                note: note || '-'
-            };
-            
-            // Save locally first
-            reportHistory.unshift(report);
-            localStorage.setItem('staffReport_history', JSON.stringify(reportHistory));
-            
-            // Invalidate daily sales cache so Continue shows fresh data
-            const cacheKey = 'staffReport_dailySales_' + (currentUser.isAdmin ? 'admin' : (currentUser.name + '_' + currentUser.store));
-            localStorage.removeItem(cacheKey);
-            
-            // Try to push to Google Sheets
-            pushReportToSheets(report);
-            
-            // Show success
-            document.getElementById('reportForm').classList.remove('active');
-            document.getElementById('successResult').classList.remove('hidden');
-            
-            loadHistory();
         }
-        
-        async function pushReportToSheets(report) {
-            if (GOOGLE_SHEETS_CONFIG.useDemoMode) {
-                console.log('Demo mode - report saved locally:', report);
-                return;
-            }
-            
+
+        // ==================== Records ====================
+        async function loadRecords() {
+            if (!currentUser) return;
+
+            const today = new Date().toISOString().split('T')[0];
+            const listEl = document.getElementById('historyList');
+
             try {
-                const params = new URLSearchParams({
-                    action: 'addReport',
-                    name: report.userName,
-                    store: report.storeName,
-                    pn: report.productPN,
-                    productName: report.productName,
-                    price: report.price || '',
-                    note: report.note,
-                    timestamp: report.timestamp
-                });
-                
-                const url = `${GOOGLE_SHEETS_CONFIG.reportsUrl}?${params.toString()}`;
-                
-                await fetch(url);
-            } catch (err) {
-                console.error('Failed to push report to Google Sheets:', err);
-            }
-        }
-        
-        function loadHistory() {
-            // 優先使用 Google Sheets 的資料（dailyReportsData）
-            if (dailyReportsData && dailyReportsData.length > 0) {
-                let html = '';
-                dailyReportsData.forEach((r, index) => {
-                    const deleteBtn = currentUser.isAdmin ? 
-                        `<button onclick="deleteReportById('${r.id}', '${r.name}', '${r.store}')" style="background:#fee2e2;border:1px solid #fecaca;color:#dc2626;padding:4px 10px;border-radius:6px;font-size:11px;cursor:pointer;">Delete</button>` : '';
-                    
-                    html += `
-                        <div class="history-item">
-                            <div class="header">
-                                <span class="pn">${r.pn} - ${r.productName}</span>
-                                <span class="time">${r.timestamp}</span>
-                            </div>
-                            <div style="font-size:12px;color:#6b7280;margin:5px 0;">${r.name} | ${r.store}</div>
-                            <div style="display:flex;justify-content:space-between;align-items:center;">
-                                ${r.note ? `<div class="note">${r.note}</div>` : '<div></div>'}
-                                ${deleteBtn}
-                            </div>
-                        </div>
-                    `;
-                });
-                document.getElementById('historyList').innerHTML = html;
-                return;
-            }
-            
-            // 備用：使用本地儲存
-            const saved = localStorage.getItem('staffReport_history');
-            if (saved) {
-                reportHistory = JSON.parse(saved);
-                
-                const today = new Date().toDateString();
-                const todayReports = reportHistory.filter(r => 
-                    new Date(r.date).toDateString() === today
+                const res = await fetch(
+                    `${API_BASE}/api/records?name=${encodeURIComponent(currentUser.name)}&date=${today}`
                 );
-                
-                if (todayReports.length > 0) {
-                    let html = '';
-                    todayReports.forEach((r, index) => {
-                        const time = new Date(r.date).toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' });
-                        html += `
+                const data = await res.json();
+
+                if (data.reports && data.reports.length > 0) {
+                    listEl.innerHTML = data.reports
+                        .sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt))
+                        .map(r => `
                             <div class="history-item">
-                                <div class="header">
-                                    <span class="pn">${r.pn || ''} - ${r.productName || r.name || ''}</span>
-                                    <span class="time">${r.timestamp || r.date || ''}</span>
-                                </div>
-                                <div style="font-size:12px;color:#888;margin:5px 0;">👤 ${r.name || ''} | 🏪 ${r.store || ''}</div>
-                                <div style="display:flex;justify-content:space-between;align-items:center;">
-                                    ${r.note && r.note !== '-' ? `<div class="note">📝 ${r.note}</div>` : '<div></div>'}
-                                </div>
+                                <div class="pn">${r.pnCode} — ${(r.productInfo && r.productInfo.name) ? r.productInfo.name : '-'}</div>
+                                <div class="time">${new Date(r.submittedAt).toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' })}</div>
                             </div>
-                        `;
-                    });
-                    document.getElementById('historyList').innerHTML = html;
+                        `).join('');
+                } else {
+                    listEl.innerHTML = '<p style="text-align:center;color:#888;font-size:13px;padding:12px;">尚無回報記錄 No records yet</p>';
                 }
+            } catch (e) {
+                listEl.innerHTML = '<p style="text-align:center;color:#888;font-size:13px;padding:12px;">尚無回報記錄 No records yet</p>';
             }
         }
-        
-        // ==================== Reset Form ====================
+
+        // ==================== Reset ====================
         function resetForm() {
             document.getElementById('productPN').value = '';
-            document.getElementById('reportNote').value = '';
             document.getElementById('productInfo').classList.remove('show');
             selectedProduct = null;
-
             document.getElementById('successResult').classList.add('hidden');
             document.getElementById('reportForm').classList.add('active');
-
-            // Reload daily sales with fresh data (cache was invalidated on submit)
-            loadDailySales();
         }
     </script>
-
-
 </body>
 </html>

@@ -8,11 +8,23 @@
     {
       "src": "api/submit.js",
       "use": "@vercel/node"
+    },
+    {
+      "src": "api/products.js",
+      "use": "@vercel/node"
     }
   ],
   "routes": [
     {
       "src": "/api/submit",
+      "dest": "/api/submit.js"
+    },
+    {
+      "src": "/api/products",
+      "dest": "/api/products.js"
+    },
+    {
+      "src": "/api/records",
       "dest": "/api/submit.js"
     },
     {
