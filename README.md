@@ -1,25 +1,36 @@
-# staff-reporting-system v2
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-正式第二版的 staff reporting system。
+## Getting Started
 
-## 結構
-- `index.html`：前端頁面
-- `api/`：Vercel serverless API
-- `vercel.json`：部署設定
-- `package.json`：專案設定
+First, run the development server:
 
-## Apps Script 檔案說明
-此目錄保留多個 Apps Script 歷史版本，目的是保留遷移與除錯脈絡，避免第二版正式化時把先前實驗脈絡直接丟失。
+```bash
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
+```
 
-- `GoogleAppsScript.js`：較早期整合版
-- `appsscript-final.js` / `appsscript-final-v2.js`：接近正式版的收斂稿
-- `appsscript-admin.js`：管理向版本
-- `appsscript-fixed.js` / `appsscript-tz.js` / `appsscript-price.js`：特定修正版本
-- `appsscript-v3.js` ~ `appsscript-v13.js`：歷史迭代版本
-- `appsscript-simple.js`：簡化版本
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-## 保留策略
-目前先保留這些歷史檔於 repo 根目錄，避免功能與流程背景流失；後續若要進一步整理，可再搬入 `archive/` 或 `references/`。
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-## 部署
-預期部署於 Vercel。
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+
+## Learn More
+
+To learn more about Next.js, take a look at the following resources:
+
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+
+## Deploy on Vercel
+
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
