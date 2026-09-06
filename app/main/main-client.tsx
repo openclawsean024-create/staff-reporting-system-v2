@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Html5Qrcode } from 'html5-qrcode';
+import { formatTime as formatDate, getToday, formatPrice } from '../lib/format';
 
 interface ProductInfo {
   name: string;
@@ -18,19 +19,6 @@ interface Report {
   pnCode: string;
   productInfo: ProductInfo | null;
   submittedAt: string;
-}
-
-function formatDate(iso: string): string {
-  const d = new Date(iso);
-  return `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}:${d.getSeconds().toString().padStart(2, '0')}`;
-}
-
-function getToday(): string {
-  return new Date().toISOString().split('T')[0];
-}
-
-function formatPrice(p: number): string {
-  return `$${p.toLocaleString('zh-TW')}`;
 }
 
 function QRScanner({ onScan, onClose }: { onScan: (v: string) => void; onClose: () => void }) {
